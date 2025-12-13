@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "MDK",
+            "includePath": [
+                "C:/Keil_v5/ARM/ARMCC/include/",
+                "${env:LOCALAPPDATA}\\AppData\\Local\\Arm\\Packs\\Keil\\STM32F1xx_DFP\\2.4.1\\Device\\Include",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__STATIC_INLINE"
+            ]
+        }
+    ],
+    "version": 4
+}

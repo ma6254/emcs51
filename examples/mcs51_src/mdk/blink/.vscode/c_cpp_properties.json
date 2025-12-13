@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "MDK",
+            "includePath": [
+                "C:/Keil_v5/ARM/ARMCC/include/"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__STATIC_INLINE"
+            ]
+        }
+    ],
+    "version": 4
+}

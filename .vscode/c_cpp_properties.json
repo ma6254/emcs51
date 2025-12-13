@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "EMCS51",
+            "includePath": [
+                "${workspaceFolder}/src"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__STATIC_INLINE"
+            ]
+        }
+    ],
+    "version": 4
+}

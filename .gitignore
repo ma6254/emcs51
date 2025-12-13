@@ -1,0 +1,11 @@
+
+# vendor 
+/examples/vendor/SEGGER_RTT_V812c
+
+# KEIL
+*.uvgui.*
+*.uvguix.*
+Objects
+Listings
+JLinkLog.txt
+JLinkSettings.ini

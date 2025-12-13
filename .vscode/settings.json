@@ -1,0 +1,14 @@
+{
+    "files.encoding": "utf8",
+    "editor.rulers": [
+        80,
+        120,
+    ],
+    "files.autoGuessEncoding": true,
+    "files.exclude": {
+        "*.uvguix.*": true,
+        "**/*.uvgui.*": true,
+        "**/Objects": true,
+        "**/Listings": true
+    }
+}
