@@ -407,10 +407,15 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\src\core\emcs51_inst.c</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>emcs51_instruction</GroupName>
+          <Files>
             <File>
               <FileName>emcs51_general_inst.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\src\core\emcs51_general_inst.c</FilePath>
+              <FilePath>..\..\..\..\..\src\instruction\emcs51_general_inst.c</FilePath>
             </File>
           </Files>
         </Group>

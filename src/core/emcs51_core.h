@@ -76,6 +76,8 @@ void emcs51_core_init(emcs51_core_t *core, emcs51_core_config_t *config);
 void emcs51_core_inst_add(emcs51_core_t *core, uint8_t opcode, emcs51_inst_def_t *inst_def);
 void emcs51_core_inst_add_range(emcs51_core_t *core, uint8_t start, uint8_t len, emcs51_inst_def_t *inst_def);
 void emcs51_core_reg_add(emcs51_core_t *core, uint8_t addr, emcs51_write_data_cb_t write_data_cb, emcs51_read_data_cb_t read_data_cb);
+void emcs51_core_inst_dump(emcs51_core_t *core);
+
 
 void emcs51_core_reset(emcs51_core_t *core);
 void emcs51_core_inc(emcs51_core_t *core);

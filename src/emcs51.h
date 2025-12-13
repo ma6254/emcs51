@@ -20,6 +20,6 @@ const char *emcs51_err_name(int err);
 
 #include "core/emcs51_inst.h"
 #include "core/emcs51_core.h"
-#include "core/emcs51_general_inst.h"
+#include "instruction/emcs51_general_inst.h"
 
 #endif // EMCS51_H

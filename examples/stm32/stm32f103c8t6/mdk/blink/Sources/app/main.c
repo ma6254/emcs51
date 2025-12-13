@@ -5,6 +5,7 @@
 #include <SEGGER_RTT.h>
 #include <stm32f10x.h>
 #include <emcs51.h>
+#include <instruction/emcs51_general_inst.h>
 #include <../testing/emcs51_testing.h>
 
 uint8_t segger_up_buffer[1024] = {0};
@@ -57,16 +58,18 @@ int main(void)
     emcs51_general_inst_init(&emcs51_core);
     emcs51_core_reg_add(&emcs51_core, 0x80, emcs51_P0_write_data_cb, NULL);
 
+    emcs51_core_inst_dump(&emcs51_core);
+
     printf("[EMCS51] start\r\n");
 
-    while (1)
-    {
-        emcs51_core_inc(&emcs51_core);
-        if (emcs51_core.err < 0)
-        {
-            break;
-        }
-    }
+    // while (1)
+    // {
+    //     emcs51_core_inc(&emcs51_core);
+    //     if (emcs51_core.err < 0)
+    //     {
+    //         break;
+    //     }
+    // }
 
     printf("[main] core exit err:%d %s pc:0x%04X\r\n", emcs51_core.err, emcs51_err_name(emcs51_core.err), emcs51_core.reg.pc);
 

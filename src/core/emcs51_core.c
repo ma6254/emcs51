@@ -82,6 +82,66 @@ void emcs51_core_reg_add(emcs51_core_t *core, uint8_t addr, emcs51_write_data_cb
     core->read_data_cb[addr] = read_data_cb;
 }
 
+void emcs51_core_inst_dump(emcs51_core_t *core)
+{
+
+    uint32_t i = 0;
+    uint32_t line_i = 0;
+    uint8_t mnemonic[5];
+
+    if (core == NULL)
+        return;
+
+    printf("[EMCS51][inst_dump] ==================================================\r\n");
+    printf("[EMCS51][inst_dump]     0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F\r\n");
+
+    for (line_i = 0; line_i < 256; line_i += 0x10)
+    {
+        printf("[EMCS51][inst_dump] %02X", line_i);
+
+        for (i = 0; i < 0x10; i++)
+        {
+            emcs51_inst_def_t inst_def = core->inst_def[line_i + i];
+            uint8_t is_defined = 0;
+
+            memset(mnemonic, 0, sizeof(mnemonic));
+
+            if (inst_def.mnemonic != NULL)
+            {
+                if (strlen(inst_def.mnemonic) > 0)
+                {
+                    for (uint8_t j = 0; j < 4; j++)
+                    {
+                        if ((inst_def.mnemonic[j] == ' ') || (inst_def.mnemonic[j] == '\0'))
+                        {
+                            mnemonic[j] = '\0';
+                            break;
+                        }
+
+                        mnemonic[j] = inst_def.mnemonic[j];
+                    }
+
+                    is_defined = 1;
+                }
+
+            }
+
+            if (is_defined)
+            {
+                // printf(" %02X  ", i + line_i);
+                printf(" %-4s", mnemonic);
+            }
+            else
+            {
+                printf(" ----");
+            }
+        }
+        printf("\r\n");
+    }
+
+    printf("[EMCS51][inst_dump] ==================================================\r\n");
+}
+
 /*******************************************************************************
  * @brief 复位核心
  * @param core 核心结构体指针
@@ -207,7 +267,7 @@ int emcs51_core_read_GPR(emcs51_core_t *core, uint8_t n, uint8_t *data)
  ******************************************************************************/
 int emcs51_core_write_GPR(emcs51_core_t *core, uint8_t n, uint8_t data)
 {
-        uint8_t reg_bank = core->reg.rs;
+    uint8_t reg_bank = core->reg.rs;
 
     if (n > 3)
         return EMCS51_ERR;
