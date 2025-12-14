@@ -31,7 +31,6 @@ typedef struct EMCS51_CORE_REG
     uint8_t a;     // ACC
     uint8_t b;     // 
     uint8_t sp;    // Stack Pointer
-    uint16_t dptr; // Data Pointer
 
     uint16_t pc; // Program Counter
 
@@ -59,6 +58,9 @@ typedef struct EMCS51_CORE
 
     uint8_t data_ram[256];
 
+    uint8_t *xdata_ram;
+    uint32_t xdata_ram_size;
+
     emcs51_core_reg_t reg;
     emcs51_read_code_cb_t read_code_cb;
 
@@ -78,11 +80,15 @@ void emcs51_core_inst_add_range(emcs51_core_t *core, uint8_t start, uint8_t len,
 void emcs51_core_reg_add(emcs51_core_t *core, uint8_t addr, emcs51_write_data_cb_t write_data_cb, emcs51_read_data_cb_t read_data_cb);
 void emcs51_core_inst_dump(emcs51_core_t *core);
 
+void emcs51_core_set_xdata_ram(emcs51_core_t *core, uint8_t *xdata_ram, uint32_t xdata_ram_size);
 
 void emcs51_core_reset(emcs51_core_t *core);
 void emcs51_core_inc(emcs51_core_t *core);
 
 int emcs51_core_read_GPR(emcs51_core_t *core, uint8_t n, uint8_t *data);
 int emcs51_core_write_GPR(emcs51_core_t *core, uint8_t n, uint8_t data);
+
+int emcs51_core_read_DPTR(emcs51_core_t *core, uint16_t *data);
+int emcs51_core_write_DPTR(emcs51_core_t *core, uint16_t data);
 
 #endif // EMCS51_CORE_H

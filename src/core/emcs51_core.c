@@ -143,6 +143,22 @@ void emcs51_core_inst_dump(emcs51_core_t *core)
 }
 
 /*******************************************************************************
+ * @brief 设置XDATA区内存
+ * @param core 核心结构体指针
+ * @param xdata_ram XDATA区内存指针
+ * @param xdata_ram_size XDATA区内存大小
+ * @return none
+ ******************************************************************************/
+void emcs51_core_set_xdata_ram(emcs51_core_t *core, uint8_t *xdata_ram, uint32_t xdata_ram_size)
+{
+    if (core == NULL)
+        return;
+
+    core->xdata_ram = xdata_ram;
+    core->xdata_ram_size = xdata_ram_size;
+}
+
+/*******************************************************************************
  * @brief 复位核心
  * @param core 核心结构体指针
  * @return none
@@ -248,7 +264,7 @@ int emcs51_core_read_GPR(emcs51_core_t *core, uint8_t n, uint8_t *data)
 {
     uint8_t reg_bank = core->reg.rs;
 
-    if (n > 3)
+    if (n > 7)
         return EMCS51_ERR;
 
     uint8_t iram_addr = (reg_bank * 8) + n;
@@ -269,12 +285,34 @@ int emcs51_core_write_GPR(emcs51_core_t *core, uint8_t n, uint8_t data)
 {
     uint8_t reg_bank = core->reg.rs;
 
-    if (n > 3)
+    if (n > 7)
         return EMCS51_ERR;
 
     uint8_t iram_addr = (reg_bank * 8) + n;
 
     core->data_ram[iram_addr] = data;
+
+    return EMCS51_OK;
+}
+
+int emcs51_core_read_DPTR(emcs51_core_t *core, uint16_t *data)
+{
+
+    uint8_t DPH_data = core->data_ram[0x82];
+    uint8_t DPL_data = core->data_ram[0x83];
+
+    *data = ((uint16_t)DPH_data << 8) | DPL_data;
+
+    return EMCS51_OK;
+}
+
+int emcs51_core_write_DPTR(emcs51_core_t *core, uint16_t data)
+{
+    uint8_t DPH_data = (data >> 8) & 0xFF;
+    uint8_t DPL_data = data & 0xFF;
+
+    core->data_ram[0x82] = DPH_data;
+    core->data_ram[0x83] = DPL_data;
 
     return EMCS51_OK;
 }

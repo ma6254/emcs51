@@ -80,6 +80,8 @@ static void emcs51_mov_rn_immed_inst_exec_cb(emcs51_inst_exec_event_t *event)
     uint8_t rs = (core->reg.psw >> 3) & 0x03; // Register Bank Select bits (RS1, RS0)
     uint8_t iram_addr = (rs * 8) + reg_num;
 
+    // printf("[EMCS51] MOV R%u, #0x%02X\r\n", reg_num, data);
+
     emcs51_write_data_cb_t write_data_cb = event->core->write_data_cb[iram_addr];
 
     if (write_data_cb)
@@ -117,6 +119,66 @@ static emcs51_inst_def_t sjmp_inst_def = {
     .length = 1,
     .cycles = 2,
     .exec_cb = emcs51_sjmp_inst_exec_cb,
+};
+
+/*******************************************************************************
+ * @brief 回调函数：0x90 MOV DPTR #immediate 指令执行
+ * @param event 指令执行事件结构体指针
+ * @return none
+ ******************************************************************************/
+static void emcs51_mov_dptr_immed_inst_exec_cb(emcs51_inst_exec_event_t *event)
+{
+    int err;
+    emcs51_core_t *core = event->core;
+
+    uint16_t dptr_value = (uint16_t)((core->operands[0] << 8) | core->operands[1]);
+
+    emcs51_core_write_DPTR(core, dptr_value);
+}
+
+static emcs51_inst_def_t mov_dptr_immed_inst_def = {
+    .mnemonic = "MOV DPTR, #immediate",
+    .length = 2,
+    .cycles = 2,
+    .exec_cb = emcs51_mov_dptr_immed_inst_exec_cb,
+};
+
+/*******************************************************************************
+ * @brief 回调函数：0xA3 INC DPTR 指令执行
+ * @param event 指令执行事件结构体指针
+ * @return none
+ ******************************************************************************/
+static void emcs51_inc_dptr_inst_exec_cb(emcs51_inst_exec_event_t *event)
+{
+    int err;
+    emcs51_core_t *core = event->core;
+
+    uint16_t dptr_value;
+
+    err = emcs51_core_read_DPTR(core, &dptr_value);
+    if (err < 0)
+    {
+        core->err = err;
+        return;
+    }
+
+    dptr_value++;
+
+    // printf("[EMCS51] INC DPTR to 0x%04X\r\n", dptr_value);
+
+    err = emcs51_core_write_DPTR(core, dptr_value);
+    if (err < 0)
+    {
+        core->err = err;
+        return;
+    }
+}
+
+static emcs51_inst_def_t inc_dptr_inst_def = {
+    .mnemonic = "INC DPTR",
+    .length = 0,
+    .cycles = 1,
+    .exec_cb = emcs51_inc_dptr_inst_exec_cb,
 };
 
 /*******************************************************************************
@@ -176,24 +238,6 @@ static emcs51_inst_def_t set_bit_inst_def = {
 };
 
 /*******************************************************************************
- * @brief 回调函数：0xE4 CLR A 指令执行
- * @param event 指令执行事件结构体指针
- * @return none
- ******************************************************************************/
-static void emcs51_clr_a_inst_exec_cb(emcs51_inst_exec_event_t *event)
-{
-    emcs51_core_t *core = event->core;
-    core->reg.a = 0x00;
-}
-
-static emcs51_inst_def_t clr_a_inst_def = {
-    .mnemonic = "CLR A",
-    .length = 0,
-    .cycles = 1,
-    .exec_cb = emcs51_clr_a_inst_exec_cb,
-};
-
-/*******************************************************************************
  * @brief 回调函数：0xD8~0xDF DJNZ Rn, offset 指令执行
  * @param event 指令执行事件结构体指针
  * @return none
@@ -215,7 +259,7 @@ static void emcs51_djnz_rn_offset_inst_exec_cb(emcs51_inst_exec_event_t *event)
 
     Rn_data--;
 
-    printf("[EMCS51] DJNZ R%d=0x%02X\r\n", reg_num, Rn_data);
+    // printf("[EMCS51] DJNZ R%d=0x%02X\r\n", reg_num, Rn_data);
 
     err = emcs51_core_write_GPR(core, reg_num, Rn_data);
     ;
@@ -240,6 +284,63 @@ static emcs51_inst_def_t djnz_rn_offset_inst_def = {
     .length = 1,
     .cycles = 1,
     .exec_cb = emcs51_djnz_rn_offset_inst_exec_cb,
+};
+
+/*******************************************************************************
+ * @brief 回调函数：0xE4 CLR A 指令执行
+ * @param event 指令执行事件结构体指针
+ * @return none
+ ******************************************************************************/
+static void emcs51_clr_a_inst_exec_cb(emcs51_inst_exec_event_t *event)
+{
+    emcs51_core_t *core = event->core;
+
+    // printf("[EMCS51] CLR A\r\n");
+
+    core->reg.a = 0x00;
+}
+
+static emcs51_inst_def_t clr_a_inst_def = {
+    .mnemonic = "CLR A",
+    .length = 0,
+    .cycles = 1,
+    .exec_cb = emcs51_clr_a_inst_exec_cb,
+};
+
+/*******************************************************************************
+ * @brief 回调函数：0xF0 MOVX @DPTR, A 指令执行
+ * @param event 指令执行事件结构体指针
+ * @return none
+ ******************************************************************************/
+static void emcs51_movx_at_dptr_a_inst_exec_cb(emcs51_inst_exec_event_t *event)
+{
+    int err;
+    emcs51_core_t *core = event->core;
+    uint16_t dptr_value;
+
+    err = emcs51_core_read_DPTR(core, &dptr_value);
+    if (err < 0)
+    {
+        core->err = err;
+        return;
+    }
+
+    // printf("[EMCS51] MOVX @DPTR(0x%04X), A(0x%02X)\r\n", dptr_value, core->reg.a);
+
+    if (dptr_value >= core->xdata_ram_size)
+    {
+        // core->err = EMCS51_ERR_XDATA_OUT_OF_RANGE;
+        return;
+    }
+
+    core->xdata_ram[dptr_value] = core->reg.a;
+}
+
+static emcs51_inst_def_t movx_at_dptr_a_inst_def = {
+    .mnemonic = "MOVX @DPTR, A",
+    .length = 0,
+    .cycles = 1,
+    .exec_cb = emcs51_movx_at_dptr_a_inst_exec_cb,
 };
 
 /*******************************************************************************
@@ -285,6 +386,7 @@ static emcs51_inst_def_t mov_ari_a_inst_def = {
 void emcs51_general_inst_init(emcs51_core_t *core)
 {
     emcs51_core_inst_add(core, 0x00, &nop_inst_def);
+
     emcs51_core_inst_add(core, 0x02, &ljmp_inst_def);
 
     emcs51_core_inst_add(core, 0x75, &mov_direct_immed_inst_def);
@@ -293,13 +395,19 @@ void emcs51_general_inst_init(emcs51_core_t *core)
 
     emcs51_core_inst_add(core, 0x80, &sjmp_inst_def);
 
+    emcs51_core_inst_add(core, 0x90, &mov_dptr_immed_inst_def);
+
+    emcs51_core_inst_add(core, 0xA3, &inc_dptr_inst_def);
+
     emcs51_core_inst_add(core, 0xC2, &clr_bit_inst_def);
 
     emcs51_core_inst_add(core, 0xD2, &set_bit_inst_def);
 
+    emcs51_core_inst_add_range(core, 0xD8, 8, &djnz_rn_offset_inst_def);
+
     emcs51_core_inst_add(core, 0xE4, &clr_a_inst_def);
 
-    emcs51_core_inst_add_range(core, 0xD8, 8, &djnz_rn_offset_inst_def);
+    emcs51_core_inst_add(core, 0xF0, &movx_at_dptr_a_inst_def);
 
     emcs51_core_inst_add_range(core, 0xF6, 2, &mov_ari_a_inst_def);
 }
